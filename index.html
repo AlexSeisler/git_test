@@ -1,1 +1,399 @@
+<!--
+This code simulates the Boss Levels challenge, this challenge is a math operations quiz with 2 formats(Max Score and Three Out) and 3 difficulties(Easy, Medium, Hard). 
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Page Title</title>
+</head>
+<body>
+    <!--Embedded CSS file for styling GUI-->
+    <style>
+        body{
+            background-color: rgb(25, 143, 123);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height:1000px;
+        }
 
+        button{
+            background-color: red;
+            color: black;
+            height: 80px;
+            width: 150px;
+            align-items: center;
+            font-size: 25px;
+            text-align: center;
+            position: relative;
+
+        }
+        input{
+            background-color: lightblue;
+            height: 80px;
+            length: 200px;
+            font-size: 40px;
+        }
+        p{
+            font-size: 50px;
+        }
+    </style>
+
+
+
+    <!--Creates a divided section to encapsulate the first 2 option buttons, this leads to easy access and control-->
+    <div id="gameScreen">
+        <button id="startMax">Max</button>
+        <button id="start3">Three Out</button>
+    </div>
+    <!--Start of embedded JavaScript File-->
+    <script>
+        //Warm up, power of a number(index)
+        /*
+        function power(n, i)
+        {
+            n=n+"";
+            let keep = "";
+            if(n.length<i)
+            {
+                return NaN;
+            }
+            for(let i = n.length-1;i>=0;i--)
+            {
+                keep+=n[i]
+            }
+            return(keep[i]);
+        }
+        console.log(power(4587,3));
+        console.log(power(5412,0));
+        console.log(power(123,1));
+        console.log(power(4545,5));
+        */
+        //Initilizing all variables
+        var num1 = 0;
+        var num2 = 0;
+        var answer = 0;
+        var operations = "+-*/%";
+        var oper = "";
+        var operNum = 0;
+        var user = 0;
+        var currentQuestion = 0;
+        const totalAmount = 20;
+        var score = 0;
+        var end = false;
+        var lives = 3;
+        var range = 10;
+        var range1 = 10;
+        var easy = false;
+        var medium = false;
+        var hard = false;
+
+        //Game mode Max
+        function startGameM()
+        {
+            document.getElementById('gameScreen').innerHTML = 
+            `
+                <input type="text" id="userInput" placeholder="Enter answer">
+                <button onclick="checkAnswerMaxScore()">Submit</button>
+                <p id="equation"></p>
+                <p id="output"></p>
+                <p id="score"></p>
+            `;
+            
+            generateEquation();
+        }
+
+        //Set difficulty for Max game mode
+        function setDifM()
+        {
+            document.getElementById('gameScreen').innerHTML = 
+            `
+                <button id="easy">Easy</button>
+                <button id="medium">Medium</button>
+                <button id="hard">Hard</button>
+            `;
+            document.getElementById('easy').addEventListener('click', function()
+            {
+                easy = true;
+                startGameM();
+            });
+            document.getElementById('medium').addEventListener('click', function()
+            {
+                medium = true;
+                startGameM();
+            });
+            document.getElementById('hard').addEventListener('click', function()
+            {
+                hard = true;
+                startGameM();
+            });
+        }
+
+        //Set difficulty for Three count mode
+        function setDif3()
+        {
+            document.getElementById('gameScreen').innerHTML = 
+            `
+                <button id="easy">Easy</button>
+                <button id="medium">Medium</button>
+                <button id="hard">Hard</button>
+            `;
+            document.getElementById('easy').addEventListener('click', function()
+            {
+                easy = true;
+                startGame3();
+            });
+            document.getElementById('medium').addEventListener('click', function()
+            {
+                medium = true;
+                startGame3();
+            });
+            document.getElementById('hard').addEventListener('click', function()
+            {
+                hard = true;
+                startGame3();
+            });
+        }
+
+        //Game mode three count
+        function startGame3()
+        {
+            document.getElementById('gameScreen').innerHTML = 
+            `
+                <input type="text" id="userInput" placeholder="Enter answer">
+                <button onclick="checkAnswer3Out()">Submit</button>
+                <p id="equation"></p>
+                <p id="output"></p>
+                <p id="score"></p>
+                <p id="lives"></p>
+            `;
+            
+            generateEquation();
+        }
+
+        document.getElementById('startMax').addEventListener('click', function()
+        {
+            setDifM();
+        });
+
+        document.getElementById('start3').addEventListener('click', function()
+        {
+            setDif3();
+        });
+
+        //Checks answers and continues loop until 20 questions have been passed for Max game mode
+        function checkAnswerMaxScore() 
+        {
+            if(end)
+            {
+                return;
+            }
+            const inputElement = document.getElementById('userInput');
+            let userNumber = inputElement.value;
+            if(userNumber == "skip")
+            {
+                document.getElementById('output').innerHTML = 'Skip Used';
+            }
+            else
+            {
+                userNumber = Number(userNumber);
+            }
+            if (isNaN(userNumber) && userNumber != "skip") 
+            {
+                document.getElementById('output').innerHTML = 'Please enter a valid number!';
+                document.getElementById('userInput').value = '';
+            } 
+            else
+            {
+                document.getElementById('output').innerHTML = `You entered: ${userNumber}`;
+            }
+            if(userNumber == "skip")
+            {
+                document.getElementById('score').innerHTML = `Your score: ${score}`;
+                document.getElementById('userInput').value = '';
+            }
+            else if (userNumber === answer) 
+            {
+                document.getElementById('output').innerHTML = 'Correct!';
+                score+=10;
+                document.getElementById('score').innerHTML = `Your score: ${score}`;
+                document.getElementById('userInput').value = '';
+            } 
+            else 
+            {
+                document.getElementById('output').innerHTML = `Wrong! The correct answer was ${answer}.`;
+                score-=5;
+                document.getElementById('score').innerHTML = `Your score: ${score}`;
+                document.getElementById('userInput').value = '';
+            }
+
+            // Prepare for the next question using a condition to end if all questions answered
+            currentQuestion++;
+            if (currentQuestion < totalAmount) 
+            {
+                // Generate the next question
+                generateEquation();
+            } 
+            else 
+            {
+                document.getElementById('output').innerHTML = ' You have completed all questions!';
+                document.getElementById('score').innerHTML = (`Your end score is ${score}`);
+                // Clear the equation
+                document.getElementById('equation').innerHTML = "";
+                end=true;
+                
+            }
+        }
+        //Checks answers and continues loop until 3 wrong answers have been passed
+        function checkAnswer3Out() 
+        {
+            if(end)
+            {
+                return;
+            }
+            document.getElementById('lives').innerHTML = `Lives: ${lives}`;
+            const inputElement = document.getElementById('userInput');
+            let userNumber = Number(inputElement.value);
+            if(isNaN(userNumber)) 
+            {
+                document.getElementById('output').innerHTML = 'Incorrect input!';
+                lives--;
+                document.getElementById('score').innerHTML = `Your score: ${score}`;
+                document.getElementById('lives').innerHTML = `Lives Remaining: ${lives}`;
+                document.getElementById('userInput').value = '';
+            } 
+            else if (userNumber === answer) 
+            {
+                document.getElementById('output').innerHTML = 'Correct!';
+                score+=1;
+                document.getElementById('score').innerHTML = `Your score: ${score}`;
+                document.getElementById('userInput').value = '';
+            } 
+            else 
+            {
+                document.getElementById('output').innerHTML = `Wrong! The correct answer was ${answer}.`;
+                lives--;
+                document.getElementById('score').innerHTML = `Your score: ${score}`;
+                document.getElementById('lives').innerHTML = `Lives Remaining: ${lives}`;
+                document.getElementById('userInput').value = '';
+            }
+
+            // Prepare for the next question
+            if (lives > 0) 
+            {
+                // Generate the next question
+                generateEquation();
+            } 
+            else 
+            {
+                document.getElementById('output').innerHTML = 'Out of Lives!';
+                document.getElementById('score').innerHTML = (`Your end score is ${score}`);
+                // Clear the equation
+                document.getElementById('equation').innerHTML = "";
+                document.getElementById('lives').innerHTML = "";
+                end=true;
+            }
+
+        }
+
+        //Creates the equation
+        function generateEquation()
+        {
+            //Conditionals are used here to modify the avaiable content for the generator based on the difficulty level(ranges and operators)
+            if(easy)
+            {
+                operations = "+-";
+            }
+            else if(medium)
+            {
+                operations = "+-/*%";
+            }
+            else if(hard)
+            {
+                operations = "+-/*%";
+            }
+            operNum = Math.floor(Math.random() * operations.length);
+            oper = operations[operNum];
+            
+            if(easy)
+            {
+                range = 10;
+            }
+            else if(medium)
+            {
+                if(oper == "+" || oper == "-")
+                {
+                    range = 100;
+                }
+                else
+                {
+                    range = 10;
+                }
+            }
+            else if(hard)
+            {
+                if(oper == "+" || oper == "-")
+                {
+                    range = 1000;
+                }
+                else if (oper == "*" || oper == "/" || oper == "%")
+                {
+                    range = 100;
+                    range1 = 10;
+                }
+            }
+
+            if(hard && oper == "*" || oper == "/" || oper == "%" )
+            {
+                num1 = Number(Math.floor(Math.random() * range));
+                num2 = Number(Math.floor(Math.random() * range1));
+            }
+            else
+            {
+                num1 = Number(Math.floor(Math.random() * range));
+                num2 = Number(Math.floor(Math.random() * range));
+            }
+            
+            if(oper == "+")
+            {
+                answer = Number(`${num1 + num2}`);
+            }
+            else if(oper == "-")
+            {
+                answer = Number(`${num1 - num2}`);
+            }
+            else if(oper == "*")
+            {
+                answer = Number(`${num1 * num2}`);
+            }
+            else if(oper == "%")
+            {
+                answer = Number(`${num1 % num2}`);
+            }
+            else if(oper == "/")
+            {
+                if(num2 == 0)
+                {
+                    if(hard && oper == "*" || oper == "/" || oper == "%")
+                    {
+                        num2 = Math.floor(Math.random() * range1-1) + 1;
+                    }
+                    else
+                    {
+                        num2 = Math.floor(Math.random() * range-1) + 1;
+                    }
+                }
+                answer = Number(`${num1 / num2}`);
+                answer = Number(Math.floor(answer));
+            }
+            //Sets equation id to created equation
+            document.getElementById('equation').innerHTML = `Equation: ${num1} ${oper} ${num2} = ?`;
+        }
+        
+    </script>
+
+</body>
+</html>
